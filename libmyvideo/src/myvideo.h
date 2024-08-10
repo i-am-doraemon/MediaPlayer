@@ -15,16 +15,20 @@
 
 MYVIDEO_API int MYVIDEO_API_CALL myvideo_initialize();
 
-MYVIDEO_API int MYVIDEO_API_CALL myvideo_create_m2ts_pipeline(int** signal_chain);
+MYVIDEO_API int MYVIDEO_API_CALL myvideo_create_m2ts_pipeline(guint64** signal_chain);
 
-MYVIDEO_API int MYVIDEO_API_CALL myvideo_create_h264_pipeline(int** signal_chain);
+MYVIDEO_API int MYVIDEO_API_CALL myvideo_create_h264_pipeline(guint64** signal_chain);
 
-MYVIDEO_API int MYVIDEO_API_CALL myvideo_create_h265_pipeline(int** signal_chain);
+MYVIDEO_API int MYVIDEO_API_CALL myvideo_create_h265_pipeline(guint64** signal_chain);
 
-MYVIDEO_API int MYVIDEO_API_CALL myvideo_delete_pipeline(int** signal_chain);
+MYVIDEO_API int MYVIDEO_API_CALL myvideo_delete_pipeline(guint64* signal_chain);
 
-MYVIDEO_API int MYVIDEO_API_CALL myvideo_playback(int* signal_chain, char* filename, HWND handle);
+MYVIDEO_API int MYVIDEO_API_CALL myvideo_playback(guint64* signal_chain, char* filename, HWND handle);
 
-MYVIDEO_API int MYVIDEO_API_CALL myvideo_stop(int* signal_chain);
+MYVIDEO_API int MYVIDEO_API_CALL myvideo_stop(guint64* signal_chain);
+
+MYVIDEO_API int MYVIDEO_API_CALL myvideo_get_duration(guint64* signal_chain);
+
+MYVIDEO_API int MYVIDEO_API_CALL myvideo_get_position(guint64* signal_chain);
 
 #endif
