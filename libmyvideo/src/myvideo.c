@@ -45,35 +45,35 @@ static int create_pipeline(GstElement **element, const char* name, const char* f
 	GstElement* file = gst_element_factory_make(file_element_name, "file");
 
 	if (!file) {
-		failed = NG_FAILED_MAKE_ELEMENT;
+		failed = NG_GST_FAILED_MAKE_ELEMENT;
 		goto FAILED_CREATE_ELEMENTS;
 	}
 
 	GstElement* dmux = gst_element_factory_make(dmux_element_name, "dmux");
 
 	if (!dmux) {
-		failed = NG_FAILED_MAKE_ELEMENT;
+		failed = NG_GST_FAILED_MAKE_ELEMENT;
 		goto FAILED_CREATE_ELEMENTS;
 	}
 
 	GstElement* decoder = gst_element_factory_make(decoder_element_name, "decoder");
 
 	if (!decoder) {
-		failed = NG_FAILED_MAKE_ELEMENT;
+		failed = NG_GST_FAILED_MAKE_ELEMENT;
 		goto FAILED_CREATE_ELEMENTS;
 	}
 
 	GstElement* monitor = gst_element_factory_make(monitor_element_name, "monitor");
 
 	if (!monitor) {
-		failed = NG_FAILED_MAKE_ELEMENT;
+		failed = NG_GST_FAILED_MAKE_ELEMENT;
 		goto FAILED_CREATE_ELEMENTS;
 	}
 
 	GstElement* pipeline = gst_pipeline_new(name);
 
 	if (!pipeline) {
-		failed = NG_FAILED_ALLOCATE_PIPELINE;
+		failed = NG_GST_FAILED_ALLOCATE_PIPELINE;
 		goto FAILED_CREATE_ELEMENTS;
 	}
 
@@ -82,13 +82,13 @@ static int create_pipeline(GstElement **element, const char* name, const char* f
 	gboolean ok = 0;
 	ok = gst_element_link(file, dmux);
 	if (!ok) {
-		failed = NG_FAILED_LINK_ELEMENT;
+		failed = NG_GST_FAILED_LINK_ELEMENT;
 		goto FAILED_CREATE_PIPELINE;
 	}
 
 	ok = gst_element_link(decoder, monitor);
 	if (!ok) {
-		failed = NG_FAILED_LINK_ELEMENT;
+		failed = NG_GST_FAILED_LINK_ELEMENT;
 		goto FAILED_CREATE_PIPELINE;
 	}
 
@@ -109,13 +109,19 @@ MYVIDEO_API int MYVIDEO_API_CALL myvideo_create_m2ts_pipeline(guint64** signal_c
 		                                                     ELEMENT_DMUX_M2TS, 
 		                                                     ELEMENT_DECODER_M2TS, ELEMENT_DISPLAY_M2TS);
 	
-	*signal_chain = pipeline;
+	*signal_chain = (guint64*)pipeline;
 	return failed;
 }
 
 MYVIDEO_API int MYVIDEO_API_CALL myvideo_create_h264_pipeline(guint64** signal_chain)
 {
-	return -1;
+	GstElement* pipeline = NULL;
+	int failed = create_pipeline(&pipeline, "h264-pipeline", ELEMENT_FILE_H264, 
+		                                                     ELEMENT_DMUX_H264, 
+		                                                     ELEMENT_DECODER_H264, ELEMENT_DISPLAY_H264);
+	
+	*signal_chain = (guint64*)pipeline;
+	return failed;
 }
 
 MYVIDEO_API int MYVIDEO_API_CALL myvideo_create_h265_pipeline(guint64** signal_chain)
@@ -124,7 +130,7 @@ MYVIDEO_API int MYVIDEO_API_CALL myvideo_create_h265_pipeline(guint64** signal_c
 	int failed = create_pipeline(&pipeline, "h265-pipeline", ELEMENT_FILE_H265, 
 		                                                     ELEMENT_DMUX_H265, 
 															 ELEMENT_DECODER_H265, ELEMENT_DISPLAY_H265);
-	*signal_chain = pipeline;
+	*signal_chain = (guint64*)pipeline;
 	return failed;
 }
 
@@ -136,29 +142,29 @@ MYVIDEO_API int MYVIDEO_API_CALL myvideo_delete_pipeline(guint64* signal_chain)
 	return OK;
 }
 
-MYVIDEO_API int MYVIDEO_API_CALL myvideo_playback(guint64* signal_chain, char* filename, HWND handle)
+MYVIDEO_API int MYVIDEO_API_CALL myvideo_playback(guint64* signal_chain, const char* filename, HWND handle)
 {
 	GstPipeline* pipeline = GST_PIPELINE_CAST(signal_chain);
 
 	GstElement* file = gst_bin_get_by_name(GST_BIN_CAST(pipeline), "file");
 	if (!file) {
-		return NG_FAILED_FIND_ELEMENT;
+		return NG_GST_FAILED_FIND_ELEMENT;
 	}
 
 	GstElement* dmux = gst_bin_get_by_name(GST_BIN_CAST(pipeline), "dmux");
 
 	if (!dmux) {
-		return NG_FAILED_FIND_ELEMENT;
+		return NG_GST_FAILED_FIND_ELEMENT;
 	}
 
 	GstElement* decoder = gst_bin_get_by_name(GST_BIN_CAST(pipeline), "decoder");
 	if (!decoder) {
-		return NG_FAILED_FIND_ELEMENT;
+		return NG_GST_FAILED_FIND_ELEMENT;
 	}
 
 	GstElement* monitor = gst_bin_get_by_name(GST_BIN_CAST(pipeline), "monitor");
 	if (!monitor) {
-		return NG_FAILED_FIND_ELEMENT;
+		return NG_GST_FAILED_FIND_ELEMENT;
 	}
 
 	g_object_set(G_OBJECT(file), "location", filename, NULL);
@@ -168,7 +174,7 @@ MYVIDEO_API int MYVIDEO_API_CALL myvideo_playback(guint64* signal_chain, char* f
 
 	GstStateChangeReturn state_changed = gst_element_set_state(GST_ELEMENT_CAST(pipeline), GST_STATE_PLAYING);
 	if (state_changed == GST_STATE_CHANGE_FAILURE) {
-		return NG_FAILED_PLAYBACK;
+		return NG_GST_FAILED_PLAYBACK;
 	}
 
 	return OK;
