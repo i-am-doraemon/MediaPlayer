@@ -30,7 +30,6 @@ MYVIDEO_API int MYVIDEO_API_CALL myvideo_get_codec_id(const char* filename)
 		}
 	}
 
-FAILED_FIND_VIDEO_STREAM:
 FAILED_FIND_STREAMINFO:
 
 	avformat_close_input(&fmt_ctx);
